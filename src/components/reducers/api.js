@@ -1,14 +1,13 @@
 
-import { createSlice } from '@reduxjs/toolkit';
-import { createAsyncThunk } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 
 const ApiKey = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDdkZDIyOTM5N2RmMTAwMTRkZGRkYjgiLCJpYXQiOjE2ODc0MjM1OTIsImV4cCI6MTY4ODYzMzE5Mn0.zshdAertgqrJND9BmOfjOUW4RU_gpklt_9AZzOtUPUU"
 
  export const fetchCommenti = createAsyncThunk(
   'commenti/fetchCommenti',
-  async () => {
-    const response = await fetch(`https://striveschool-api.herokuapp.com/api/comments/`, {
+  async (asin) => {
+    const response = await fetch("https://striveschool-api.herokuapp.com/api/comments/"+asin, {
       headers: {
         Authorization: ApiKey
       }
@@ -22,10 +21,8 @@ const ApiKey = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDdkZDIy
 
 const initialState = {
   apiArray: [],
+  originalArray: [],
   reviewArray: [],  
-  isOpen: false,
-  
- 
   categoria: "",
 
 };
@@ -38,32 +35,26 @@ const apiSlice = createSlice({
       state.apiArray = action.payload;
       
     },
-
-    toggleDesc: (state, action) => {
-      const index = action.payload; // L'indice viene passato come payload
-      state.apiArray[index].isDescrizioneAperta = !state.apiArray[index].isDescrizioneAperta;
-
-
+    setOriginal: (state, action) => {
+      state.originalArray = action.payload;
     },
     setCategory: (state, action) => {
       state.categoria = action.payload;
     },
     setSearch: (state, action) => {
       const search = action.payload;
-      console.log(search);
-      state.apiArray = state.apiArray.filter((item) => {
-
-        return item.title.toLowerCase().includes(search);
-      }
-      )
-      console.log(state.apiArray);
+      state.apiArray = state.originalArray.filter((item) => {
+        return item.title.toLowerCase().includes(search.toLowerCase());
+      })
     },
-    openModal: (state) => {
-      state.isOpen = !state.isOpen;
-      
+    openModal: (state, action) => {
+      const index = action.payload;
+      state.apiArray[index].modal = !state.apiArray[index].modal;
+    },
+    setSelected: (state, action) => {
+      const index = action.payload;
+      state.apiArray[index].selected = !state.apiArray[index].selected;
     }
-
-
   },
   extraReducers: (builder) => {
     builder.addCase(fetchCommenti.fulfilled, (state, action) => {
@@ -73,11 +64,10 @@ const apiSlice = createSlice({
     builder.addCase(fetchCommenti.pending, (state, action) => {
       state.reviewArray = []
     })
-    
   }
 
 });
 
 
-export const { apiCall, toggleDesc,setCategory,setSearch,openModal } = apiSlice.actions;
+export const { apiCall,setCategory,setSearch,openModal, setOriginal, setSelected } = apiSlice.actions;
 export default apiSlice.reducer;

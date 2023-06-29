@@ -13,6 +13,8 @@ code {
 }
 
 
-.ciao{
-  color: red;
+
+.select{
+  transform: scale(0.8);
+  border: 1px solid red;
 }
